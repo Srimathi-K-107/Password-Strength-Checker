@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Strength Checker</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background:
+          radial-gradient(circle at 20% 20%, #312e81, transparent 35%),
+          radial-gradient(circle at 80% 80%, #581c87, transparent 35%), #090b1a;
+      }
+
+      .par {
+        width: 100%;
+        max-width: 450px;
+        padding: 38px;
+        border: 1px solid rgba(167, 139, 250, 0.2);
+        border-radius: 25px;
+        background: rgba(20, 20, 43, 0.95);
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
+        animation: appear 0.6s ease;
+      }
+
+      @keyframes appear {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        font-size: 34px;
+        box-shadow: 0 0 30px rgba(124, 58, 237, 0.35);
+      }
+
+      h1 {
+        margin: 0;
+        color: #ffffff;
+        text-align: center;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+
+      .subtitle {
+        margin: 12px 0 32px;
+        color: #a5a4c3;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .input-label {
+        display: block;
+        margin-bottom: 11px;
+        color: #e0ddf5;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      input[type="password"] {
+        width: 100%;
+        height: 55px;
+        padding: 0 17px;
+        border: 1px solid #37345e;
+        border-radius: 13px;
+        outline: none;
+        background: #111329;
+        color: white;
+        font-size: 15px;
+        transition: 0.3s ease;
+      }
+
+      input[type="password"]::placeholder {
+        color: #777695;
+      }
+
+      input[type="password"]:focus {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.13);
+        background: #171832;
+      }
+
+      .strength-box {
+        margin-top: 25px;
+        padding: 19px;
+        border: 1px solid #343157;
+        border-radius: 15px;
+        background: #151630;
+      }
+
+      .strength-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        color: #d9d6f0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #str {
+        margin: 0;
+        color: #9995b9;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .requirements-title {
+        margin: 28px 0 15px;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .requirements {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+        padding: 18px;
+        border: 1px solid #302d51;
+        border-radius: 15px;
+        background: #111329;
+      }
+
+      .requirements p {
+        margin: 0;
+        color: #a5a4c3;
+        font-size: 13px;
+        line-height: 1.5;
+        transition: color 0.2s ease;
+      }
+
+      .footer-note {
+        margin: 25px 0 0;
+        color: #8583a4;
+        font-size: 12px;
+        text-align: center;
+        line-height: 1.7;
+      }
+
+      /* Success Toast */
+
+      .toast {
+        position: fixed;
+        top: 25px;
+        right: 25px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 16px 20px;
+        border: 1px solid #22c55e;
+        border-radius: 13px;
+        background: #102b20;
+        color: white;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(30px);
+        transition: 0.3s ease;
+        z-index: 1000;
+      }
+
+      .toast.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+      }
+
+      .toast span {
+        color: #4ade80;
+        font-size: 25px;
+        font-weight: bold;
+      }
+
+      .toast h4 {
+        margin: 0 0 5px;
+        font-size: 14px;
+      }
+
+      .toast p {
+        margin: 0;
+        color: #a7cbb5;
+        font-size: 12px;
+      }
+
+      @media (max-width: 480px) {
+        .par {
+          padding: 28px 21px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .toast {
+          left: 15px;
+          right: 15px;
+          top: 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="par">
+      <div class="icon">🔐</div>
+
+      <h1>Password Strength</h1>
+
+      <p class="subtitle">
+        Protect your account with a strong and secure password.
+      </p>
+
+      <label for="p1" class="input-label">Create your password</label>
+
+      <input
+        type="password"
+        name="password"
+        id="p1"
+        placeholder="Enter your password"
+        autocomplete="new-password"
+      />
+
+      <div class="strength-box">
+        <div class="strength-title">
+          <span>Password strength</span>
+          <h4 id="str">Not entered</h4>
+        </div>
+      </div>
+
+      <h4 class="requirements-title">Security Requirements</h4>
+
+      <div class="requirements">
+        <p id="one">Minimum 8 characters</p>
+        <p id="two">One uppercase letter</p>
+        <p id="three">One lowercase letter</p>
+        <p id="four">One number</p>
+        <p id="five">One special character</p>
+      </div>
+
+      <p class="footer-note">
+        A strong password is your first step towards better online security.
+      </p>
+    </div>
+
+    <!-- Success Toast -->
+
+    <div id="toast" class="toast">
+      <span>✓</span>
+      <div>
+        <h4>Password Accepted!</h4>
+        <p>Your password is strong and secure.</p>
+      </div>
+    </div>
+
+    <script>
+      let toastTimer;
+
+      p1.addEventListener("input", () => {
+        let s = 0;
+
+        let p1 = document.getElementById("p1");
+        let str = document.getElementById("str");
+        let one = document.getElementById("one");
+        let two = document.getElementById("two");
+        let three = document.getElementById("three");
+        let four = document.getElementById("four");
+        let five = document.getElementById("five");
+        let toast = document.getElementById("toast");
+
+        let v = p1.value.trim();
+
+        function show(tag, cond, msg) {
+          if (cond) {
+            tag.textContent = "✔ " + msg;
+            tag.style.color = "#4ade80";
+            s++;
+          } else {
+            tag.textContent = "✕ " + msg;
+            tag.style.color = "#fb7185";
+          }
+
+          if (s <= 2) {
+            str.innerHTML = "Weak";
+            str.style.color = "#fb7185";
+          } else if (s <= 4) {
+            str.innerHTML = "Medium";
+            str.style.color = "#facc15";
+          } else {
+            str.innerHTML = "High";
+            str.style.color = "#4ade80";
+          }
+        }
+
+        show(one, v.length >= 8, "Minimum 8 characters");
+        show(two, /[A-Z]/.test(v), "One uppercase letter");
+        show(three, /[a-z]/.test(v), "One lowercase letter");
+        show(four, /\d/.test(v), "One number");
+        show(five, /[@#$%^&*()!]/.test(v), "One special character");
+
+        if (s === 5) {
+          toast.classList.add("show");
+
+          clearTimeout(toastTimer);
+
+          toastTimer = setTimeout(() => {
+            toast.classList.remove("show");
+          }, 3000);
+        } else {
+          toast.classList.remove("show");
+          clearTimeout(toastTimer);
+        }
+      });
+    </script>
+  </body>
+</html>
